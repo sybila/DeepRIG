@@ -1,0 +1,1 @@
+This repository was simplified down by stripping unnecessary parts for our purposes, such as DEMO data. In particular, the Dataset/, output/ and util/ tutorials were removed. We refer to the original repository for anyone interested in the original implementation of the model.

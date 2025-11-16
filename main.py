@@ -5,10 +5,7 @@ from train import *
 from util.utils import div_list
 import time
 
-# Set random seed
-seed = 123
-np.random.seed(seed)
-tf.set_random_seed(seed)
+
 
 flags = tf.compat.v1.flags
 FLAGS = flags.FLAGS
@@ -26,6 +23,21 @@ flags.DEFINE_integer('max_degree', 3, 'Maximum Chebyshev polynomial degree.')
 flags.DEFINE_integer('ratio', 1, 'Ratio of negetive samples to positive samples.')
 flags.DEFINE_integer('dim', 300, 'The size of latent factor vector.')
 
+# SYBILA modifications below
+flags.DEFINE_integer('seed', 123, 'Random seed to utilize during the run.')
+flags.DEFINE_bool('logarithmize', False, 'Indicates whether to logaritmize the data.')
+flags.DEFINE_string('dataset_name', None, 'Name of the dataset being processed.')
+flags.DEFINE_string('data_file', None, 'Path to the expression data.')
+flags.DEFINE_string('label_file', None, 'Path to the label file.')
+flags.DEFINE_string('result_path', None, 'Path to where save the result')
+
+
+
+# Set random seed
+np.random.seed(FLAGS.seed)
+tf.set_random_seed(FLAGS.seed)
+
+
 def computCorr(data, t = 0.0):
 
     genes = data.columns
@@ -39,8 +51,10 @@ def prepareData(FLAGS, data_path, label_path, reverse_flags = 0):
     label_file = pd.read_csv(label_path, header=0, sep = ',')
     data = pd.read_csv(data_path, header=0, index_col = 0).T                 ###transpose for six datasets of BEELINE
     print("Read data completed! Normalize data now!")
-    data = data.transform(lambda x: np.log(x + 1))
-    print("Data normalized and logged!")
+
+    if FLAGS.logarithmize: # SYBILA added
+        data = data.transform(lambda x: np.log(x + 1))
+        print("Data normalized and logged!")
 
     TF = set(label_file['Gene1'])
     # Adjacency matrix transformation
@@ -65,11 +79,15 @@ def prepareData(FLAGS, data_path, label_path, reverse_flags = 0):
 
 
 # Preparing data for training
-input_path = FLAGS.input_path
+# SYBILA edit has specifying file paths and name through FLAGS
+input_path = FLAGS.input_pathW
 output_path = FLAGS.output_path
-dataset = input_path.split('/')[-2]
-data_file = input_path + dataset + '-ExpressionData.csv'
-label_file = input_path + dataset + '-network.csv'
+# dataset = input_path.split('/')[-2]
+dataset = FLAGS.dataset_name
+# data_file = input_path + dataset + '-ExpressionData.csv'
+# label_file = input_path + dataset + '-network.csv'
+data_file = FLAGS.data_file
+label_file = FLAGS.label_file
 
 reverse_flags = 0   ###whether label file exists reverse regulations, 0 for DeepSem data, 1 for CNNC data
 labels, adj, AM, gene_names, TF, node_feat = prepareData(FLAGS, data_file, label_file, reverse_flags)
@@ -85,7 +103,8 @@ for t in range(T):
     for i in range(cv_num):
         print("T:", '%01d' % (t))
         print("cross_validation:", '%01d' % (i))
-        result_path_cv = output_path + '/pred_result_' + dataset + '_CV' + str(cv_num) + '_' + str(i) + '.csv'
+        # SYBILA edits
+        # result_path_cv = output_path + '/pred_result_' + dataset + '_CV' + str(cv_num) + '_' + str(i) + '.csv'
         test_arr = order[i]
         arr = list(set(reorder).difference(set(test_arr)))
         np.random.shuffle(arr)
@@ -95,11 +114,14 @@ for t in range(T):
 
     output = pred_results[0]
     for i in range(1, cv_num):
-    	output = pd.concat([output, pred_results[i]])
-    output['EdgeWeight'] = abs(output['EdgeWeight'])
+        output = pd.concat([output, pred_results[i]])
+    # Renamed EdgeWeight to Weight
+    # output['EdgeWeight'] = abs(output['EdgeWeight'])
+    output['Weight'] = abs(output['Weight'])
 
-    result_path = output_path + '/Inferred_result_' + dataset + '.csv'
-    output.to_csv(result_path, header=True, index=False)
+
+    # result_path = output_path + '/Inferred_result_' + dataset + '.csv'
+    output.to_csv(FLAGS.result_path, header=True, index=False)
         
 print("Predict complete!")
 print("RunTimes is:", "{:.5f}".format(time.time() - start))
