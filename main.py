@@ -5,6 +5,9 @@ from train import *
 from util.utils import div_list
 import time
 
+import os
+from pathlib import Path
+
 
 
 flags = tf.compat.v1.flags
@@ -25,7 +28,7 @@ flags.DEFINE_integer('dim', 300, 'The size of latent factor vector.')
 
 # SYBILA modifications below
 flags.DEFINE_integer('seed', 123, 'Random seed to utilize during the run.')
-flags.DEFINE_bool('logarithmize', False, 'Indicates whether to logaritmize the data.')
+flags.DEFINE_bool('logarithmize', False, 'Indicates whether to logaritmize the data.', boolean = True)
 flags.DEFINE_string('dataset_name', None, 'Name of the dataset being processed.')
 flags.DEFINE_string('data_file', None, 'Path to the expression data.')
 flags.DEFINE_string('label_file', None, 'Path to the label file.')
@@ -109,7 +112,7 @@ for t in range(T):
         arr = list(set(reorder).difference(set(test_arr)))
         np.random.shuffle(arr)
         train_arr = arr
-        pred_matrix = train(FLAGS, adj, node_feat, train_arr, test_arr, labels, AM, gene_names, TF, result_path_cv)
+        pred_matrix = train(FLAGS, adj, node_feat, train_arr, test_arr, labels, AM, gene_names, TF)
         pred_results.append(pred_matrix)
 
     output = pred_results[0]
@@ -119,6 +122,10 @@ for t in range(T):
     # output['EdgeWeight'] = abs(output['EdgeWeight'])
     output['Weight'] = abs(output['Weight'])
 
+    # SYBILA: added checking for path
+    result_path_pathobj = Path(FLAGS.result_path)
+    if not result_path_pathobj.parent.exists():
+        os.makedirs(result_path_pathobj.parent)
 
     # result_path = output_path + '/Inferred_result_' + dataset + '.csv'
     output.to_csv(FLAGS.result_path, header=True, index=False)

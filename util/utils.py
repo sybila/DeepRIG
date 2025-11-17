@@ -94,7 +94,8 @@ def div_list(ls, n):
 
 def ROC(outs, labels, train_mask, test_mask, label_neg, gene_names, result_path):
     # scores = []
-    results = pd.DataFrame(columns = ['Gene1', 'Gene2', 'Label', 'EdgeWeight'])
+    # SYBILA: changed EdgeWeight column name to Weight
+    results = pd.DataFrame(columns = ['Gene1', 'Gene2', 'Label', 'Weight'])
     
     train_mask = train_mask[:, 0].reshape(outs.shape)
     test_mask = test_mask[:, 0].reshape(outs.shape)
@@ -111,8 +112,8 @@ def ROC(outs, labels, train_mask, test_mask, label_neg, gene_names, result_path)
                 new_df = pd.DataFrame({'Gene1': gene_names[i],
                                        'Gene2': gene_names[j],
                                        'Label': label_true,
-                                       'EdgeWeight': outs[i, j]}, index=[1])
+                                       'Weight': outs[i, j]}, index=[1])
                 results = results.append(new_df, ignore_index=True)
 
-    results = results.sort_values(by = ['EdgeWeight'], axis = 0, ascending = False)
+    results = results.sort_values(by = ['Weight'], axis = 0, ascending = False)
     results.to_csv(result_path, header=True, index=False)

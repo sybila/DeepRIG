@@ -7,7 +7,8 @@ from util.utils import *
 from deeprig.models import DeepRIG
 
 
-def train(FLAGS, adj, features, train_arr, test_arr, labels, AM, gene_names, TF, result_path):
+# SYBILA: removed unused result_path parameter
+def train(FLAGS, adj, features, train_arr, test_arr, labels, AM, gene_names, TF):
     # Load data
     adj, size_gene, logits_train, logits_test, train_mask, test_mask, labels= load_data(
         adj, train_arr, test_arr, labels, AM)
@@ -92,7 +93,8 @@ def train(FLAGS, adj, features, train_arr, test_arr, labels, AM, gene_names, TF,
                 TF_mask[i, j] = 1
     geneNames = np.array(gene_names)
     idx_rec, idx_send = np.where(TF_mask)
+    # SYBILA: changed EdgeWeight column name to Weight
     results = pd.DataFrame(
-        {'Gene1': geneNames[idx_rec], 'Gene2': geneNames[idx_send], 'EdgeWeight': (outs[idx_rec, idx_send])})
-    results = results.sort_values(by = ['EdgeWeight'], axis = 0, ascending = False)
+        {'Gene1': geneNames[idx_rec], 'Gene2': geneNames[idx_send], 'Weight': (outs[idx_rec, idx_send])})
+    results = results.sort_values(by = ['Weight'], axis = 0, ascending = False)
     return results
