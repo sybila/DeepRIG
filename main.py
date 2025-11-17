@@ -83,7 +83,7 @@ def prepareData(FLAGS, data_path, label_path, reverse_flags = 0):
 
 # Preparing data for training
 # SYBILA edit has specifying file paths and name through FLAGS
-input_path = FLAGS.input_pathW
+input_path = FLAGS.input_path
 output_path = FLAGS.output_path
 # dataset = input_path.split('/')[-2]
 dataset = FLAGS.dataset_name
