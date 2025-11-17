@@ -11,3 +11,4 @@ dependencies:
   - scanpy>=1.7,<1.8
   - networkx>=2.5,<2.6
   - scikit-learn>=1.0,<1.1
+  - protobuf >= 3.20, <3.21
