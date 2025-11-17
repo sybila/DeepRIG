@@ -28,7 +28,7 @@ flags.DEFINE_integer('dim', 300, 'The size of latent factor vector.')
 
 # SYBILA modifications below
 flags.DEFINE_integer('seed', 123, 'Random seed to utilize during the run.')
-flags.DEFINE_bool('logarithmize', False, 'Indicates whether to logaritmize the data.', boolean = True)
+flags.DEFINE_bool('logarithmize', False, 'Indicates whether to logaritmize the data.')
 flags.DEFINE_string('dataset_name', None, 'Name of the dataset being processed.')
 flags.DEFINE_string('data_file', None, 'Path to the expression data.')
 flags.DEFINE_string('label_file', None, 'Path to the label file.')
